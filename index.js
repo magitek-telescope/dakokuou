@@ -1,37 +1,46 @@
-"use strict";
+const express = require("express");
+const app = express();
+const dakoku = require("./dakoku.json");
+const fs = require("fs");
 
-var Service, Characteristic;
+app.get("/", (req, res)=>{
+  res.header("Content-Type", "text/html");
+  res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>打刻王</title>
+  </head>
+  <body>
+    <h1>打刻王</h1>
+    <ul>
+    <li>${
+      dakoku.datas.map((data)=>{
+        return data.time + " : [" + data.type + "]"
+      }).join("</li><li>")
+    }</li>
+    </ul>
+  </body>
+</html>
+`)
+});
 
-module.exports = function(homebridge) {
+app.post("/taikin", (req, res)=>{
+  res.sendStatus(200);
+  dakoku.datas.push({
+    time: new Date(),
+    type: "退勤"
+  });
+  fs.writeFile("dakoku.json", JSON.stringify(dakoku));
+})
 
-  Service = homebridge.hap.Service;
-  Characteristic = homebridge.hap.Characteristic;
+app.post("/syukkin", (req, res)=>{
+  res.sendStatus(200);
+  dakoku.datas.push({
+    time: new Date(),
+    type: "出勤"
+  });
+  fs.writeFile("dakoku.json", JSON.stringify(dakoku));
+})
 
-  homebridge.registerAccessory("homebridge-dummy", "DummySwitch", DummySwitch);
-}
-
-function DummySwitch(log, config) {
-  this.log = log;
-  this.name = config.name;
-
-  this._service = new Service.Switch(this.name);
-  this._service.getCharacteristic(Characteristic.On)
-    .on('set', this._setOn.bind(this));
-}
-
-DummySwitch.prototype.getServices = function() {
-  return [this._service];
-}
-
-DummySwitch.prototype._setOn = function(on, callback) {
-
-  this.log("Setting switch to " + on);
-
-  if (on) {
-    setTimeout(function() {
-      this._service.setCharacteristic(Characteristic.On, false);
-    }.bind(this), 1000);
-  }
-
-  callback();
-}
+app.listen(process.env.PORT || 3000);

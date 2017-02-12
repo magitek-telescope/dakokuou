@@ -1,0 +1,16 @@
+{
+  "name": "homebridge-dakoku-king",
+  "version": "0.0.1",
+  "description": "絶対に出退勤するからな",
+  "license": "MIT",
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=7.0.0",
+    "homebridge": ">=0.2.0"
+  },
+  "dependencies": {
+    "axios": "^0.15.3"
+  }
+}
